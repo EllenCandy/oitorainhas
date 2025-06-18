@@ -1,23 +1,34 @@
-const estado1 = [
-  ["p", null, "p", null, "p", null, "p", null],
-  [null, "p", null, "p", null, "p", null, "p"],
-  ["p", null, "p", null, "p", null, "p", null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, "v", null, "v", null, "v", null, "v"],
-  ["v", null, "v", null, "v", null, "v", null],
-  [null, "v", null, "v", null, "v", null, "v"]
-];
+function gerarEstadoComRainhasPretas() {
+  const estado = Array.from({ length: 8 }, () => Array(8).fill(null));
+  const casasEscuras = [];
 
-const estado2 = JSON.parse(JSON.stringify(estado1));
-estado2[5][1] = null;
-estado2[4][2] = "v"; // move uma peça como exemplo
+  for (let linha = 0; linha < 8; linha++) {
+    for (let coluna = 0; coluna < 8; coluna++) {
+      if ((linha + coluna) % 2 !== 0) {
+        casasEscuras.push([linha, coluna]);
+      }
+    }
+  }
 
-let estadoAtual = true;
+  // Embaralha as casas escuras
+  for (let i = casasEscuras.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [casasEscuras[i], casasEscuras[j]] = [casasEscuras[j], casasEscuras[i]];
+  }
 
+  // Coloca 8 rainhas pretas
+  for (let i = 0; i < 8; i++) {
+    const [linha, coluna] = casasEscuras[i];
+    estado[linha][coluna] = "Q";
+  }
+
+  return estado;
+}
+
+// Atualiza os dois tabuleiros com estados aleatórios
 setInterval(() => {
-  const estado1 = calcularEstadoDoTabuleiro1(); // lógica 1
-  const estado2 = calcularEstadoDoTabuleiro2(); // lógica 2
+  const estado1 = gerarEstadoComRainhasPretas();
+  const estado2 = gerarEstadoComRainhasPretas();
 
   atualizarTabuleiro("tabuleiro1", estado1);
   atualizarTabuleiro("tabuleiro2", estado2);

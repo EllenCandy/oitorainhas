@@ -23,12 +23,12 @@ function atualizarTabuleiro(id, estado) {
     const coluna = parseInt(casa.dataset.coluna);
     const valor = estado[linha][coluna];
 
-    if (valor === "v" || valor === "p") {
-      const peça = document.createElement("div");
-      peça.classList.add("peça");
-      peça.classList.add(valor === "v" ? "vermelha" : "preta");
-      casa.appendChild(peça);
+    if (valor === "Q") {
+    const rainha = document.createElement("div");
+    rainha.classList.add("rainha");
+    casa.appendChild(rainha);
     }
+
   });
 }
 
