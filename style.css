@@ -1,0 +1,46 @@
+#container-tabuleiros {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #333;
+}
+
+.tabuleiro {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    border: 2px solid #333;
+    margin: 20px auto;
+}
+
+.casa {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.clara {
+  background-color: #f0d9b5;
+}
+
+.escura {
+  background-color: #b58863;
+}
+
+.peça {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.vermelha {
+  background-color: red;
+}
+
+.preta {
+  background-color: black;
+}
