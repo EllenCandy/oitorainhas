@@ -5,7 +5,7 @@ let estadoAtual2 = null;
 let executando = false;
 let intervaloExecucao = null;
 
-// Função para criar estado inicial aleatório (igual para ambos tabuleiros)
+// Função para criar estado inicial aleatório
 function criarEstadoInicial() {
   const estado = Array(8).fill().map(() => Array(8).fill(''));
   const posicoesDisponiveis = [];
@@ -17,7 +17,7 @@ function criarEstadoInicial() {
     }
   }
   
-  // Embaralhar posições (usando o mesmo seed para ambos tabuleiros)
+  // Embaralhar posições
   const seed = Math.floor(Math.random() * 10000);
   function shuffle(array, seed) {
     const random = () => {
@@ -34,7 +34,7 @@ function criarEstadoInicial() {
   
   const posicoesEmbaralhadas = shuffle([...posicoesDisponiveis], seed);
   
-  // Selecionar 8 posições para as rainhas
+  // Posicionar 8 rainhas
   for (let i = 0; i < 8; i++) {
     const [linha, coluna] = posicoesEmbaralhadas[i];
     estado[linha][coluna] = 'Q';
@@ -43,7 +43,7 @@ function criarEstadoInicial() {
   return estado;
 }
 
-// Função para criar o tabuleiro visual
+// Criar tabuleiro visual
 function criarTabuleiro(id) {
   const tabuleiro = document.getElementById(id);
   tabuleiro.innerHTML = '';
@@ -61,7 +61,7 @@ function criarTabuleiro(id) {
   }
 }
 
-// Função para atualizar um tabuleiro com um estado específico
+// Atualizar tabuleiro com estado específico
 function atualizarTabuleiro(id, estado) {
   const tabuleiro = document.getElementById(id);
   const casas = tabuleiro.querySelectorAll(".casa");
@@ -80,7 +80,7 @@ function atualizarTabuleiro(id, estado) {
   });
 }
 
-// Função para iniciar/pausar a execução
+// Iniciar/pausar execução
 function iniciarPausarExecucao() {
   const botao = document.getElementById('controle-btn');
   
@@ -88,10 +88,10 @@ function iniciarPausarExecucao() {
     // Iniciar execução
     executando = true;
     botao.textContent = 'Pausar';
+    botao.classList.add('executando');
     
-    // Iniciar o loop de execução
+    // Iniciar loop
     intervaloExecucao = setInterval(() => {
-      // Atualizar estados através de funções externas
       if (typeof proximoEstadoTrio === 'function') {
         estadoAtual1 = proximoEstadoTrio(estadoAtual1);
         atualizarTabuleiro("tabuleiro1", estadoAtual1);
@@ -101,11 +101,12 @@ function iniciarPausarExecucao() {
         estadoAtual2 = proximoEstadoDupla(estadoAtual2);
         atualizarTabuleiro("tabuleiro2", estadoAtual2);
       }
-    }, 500); // Atualiza a cada 500ms
+    }, 500);
   } else {
     // Pausar execução
     executando = false;
     botao.textContent = 'Continuar';
+    botao.classList.remove('executando');
     
     if (intervaloExecucao) {
       clearInterval(intervaloExecucao);
@@ -114,9 +115,9 @@ function iniciarPausarExecucao() {
   }
 }
 
-// Função para reiniciar o jogo
+// Reiniciar jogo
 function reiniciarJogo() {
-  // Pausar execução se estiver em andamento
+  // Pausar se estiver executando
   if (executando) {
     iniciarPausarExecucao();
   }
@@ -131,38 +132,34 @@ function reiniciarJogo() {
   atualizarTabuleiro("tabuleiro2", estadoAtual2);
 }
 
-// Inicialização ao carregar a página
+// Inicialização
 document.addEventListener('DOMContentLoaded', () => {
-  // Criar botões de controle
+  // Criar controles
   const controles = document.createElement('div');
   controles.id = 'controles';
-  controles.style.display = 'flex';
-  controles.style.justifyContent = 'center';
-  controles.style.gap = '10px';
-  controles.style.margin = '20px';
   
   const controleBtn = document.createElement('button');
   controleBtn.id = 'controle-btn';
+  controleBtn.className = 'controle-btn';
   controleBtn.textContent = 'Iniciar Simulação';
-  controleBtn.style.padding = '10px 20px';
   
   const reiniciarBtn = document.createElement('button');
   reiniciarBtn.id = 'reiniciar-btn';
+  reiniciarBtn.className = 'controle-btn';
   reiniciarBtn.textContent = 'Reiniciar Jogo';
-  reiniciarBtn.style.padding = '10px 20px';
   
   controles.appendChild(controleBtn);
   controles.appendChild(reiniciarBtn);
   
-  // Inserir controles antes do container de tabuleiros
+  // Inserir controles após os tabuleiros
   const container = document.getElementById('container-tabuleiros');
-  document.body.insertBefore(controles, container);
+  container.parentNode.insertBefore(controles, container.nextSibling);
   
   // Configurar eventos
   controleBtn.addEventListener('click', iniciarPausarExecucao);
   reiniciarBtn.addEventListener('click', reiniciarJogo);
   
-  // Configurar jogo inicial
+  // Configurar jogo
   estadoInicial = criarEstadoInicial();
   estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
   estadoAtual2 = JSON.parse(JSON.stringify(estadoInicial));
