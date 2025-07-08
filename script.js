@@ -1,27 +1,28 @@
-// Estados globais
+// globais
+// let = valor que pode ser alterado
 let estadoInicial = null;
 let estadoAtual1 = null;
 let estadoAtual2 = null;
-let executando = false;
-let intervaloExecucao = null;
+let executando = false; // boolean, se ta rodando ou pausado
+let intervaloExecucao = null; // controla onde parou a simulação
 
-// Função para criar estado inicial aleatório
+// est inicial aleatório
 function criarEstadoInicial() {
-  const estado = Array(8).fill().map(() => Array(8).fill(''));
-  const posicoesDisponiveis = [];
+  const estado = Array(8).fill().map(() => Array(8).fill('')); // matriz 8x8
+  const posicoesDisponiveis = []; // quais sao as posicoes disponíveis
   
-  // Gerar todas posições possíveis
-  for (let i = 0; i < 8; i++) {
+  // gera todas posições possíveis, for básico de matriz
+  for (let i = 0; i < 8; i++) { 
     for (let j = 0; j < 8; j++) {
       posicoesDisponiveis.push([i, j]);
     }
   }
   
-  // Embaralhar posições
-  const seed = Math.floor(Math.random() * 10000);
-  function shuffle(array, seed) {
+  // embaralha posições
+  const estados = Math.floor(Math.random() * 10000); // 0 a 9999 estados
+  function shuffle(array, estados) {
     const random = () => {
-      const x = Math.sin(seed++) * 10000;
+      const x = Math.sin(estados++) * 10000;
       return x - Math.floor(x);
     };
     
@@ -32,12 +33,13 @@ function criarEstadoInicial() {
     return array;
   }
   
-  const posicoesEmbaralhadas = shuffle([...posicoesDisponiveis], seed);
+  const posicoesEmbaralhadas = shuffle([...posicoesDisponiveis], estados); 
+  // "..." cria uma cópia p nao modificar o array original
   
   // Posicionar 8 rainhas
   for (let i = 0; i < 8; i++) {
-    const [linha, coluna] = posicoesEmbaralhadas[i];
-    estado[linha][coluna] = 'Q';
+    const [linha, coluna] = posicoesEmbaralhadas[i]; // pega uma posição das embaralhadas (nao se sabe ao certo qual é esta posição)
+    estado[linha][coluna] = 'Q'; // joga uma rainha nessa posição embaralhada
   }
   
   return estado;
@@ -46,7 +48,7 @@ function criarEstadoInicial() {
 // Criar tabuleiro visual
 function criarTabuleiro(id) {
   const tabuleiro = document.getElementById(id);
-  tabuleiro.innerHTML = '';
+  tabuleiro.innerHTML = ''; // limpa limpa limpa, garante que o tabuleiro começa do zero
   
   for (let linha = 0; linha < 8; linha++) {
     for (let coluna = 0; coluna < 8; coluna++) {
