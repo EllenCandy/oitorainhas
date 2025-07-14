@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
   controles.appendChild(reiniciarBtn);
   
   // Inserir controles após os tabuleiros
-  const container = document.getElementById('container-tabuleiros');
+  const container = document.getElementById('pai-tabuleiros');
   container.parentNode.insertBefore(controles, container.nextSibling);
   
   // Configurar eventos
