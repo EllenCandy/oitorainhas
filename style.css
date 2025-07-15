@@ -91,3 +91,11 @@ html, body {
 #reiniciar-btn:hover {
   background: linear-gradient(to bottom, #ff4a4a, #ff2929);
 }
+
+.info {
+  margin-top: 10px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  color: #000000;
+}

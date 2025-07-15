@@ -80,6 +80,36 @@ function busca_solucao(coluna_atual, opcoes_validas, movimentos, solucao_parcial
     return { solucao: [], movs: movimentos };
 }
 
+function proximoEstadoTrio(estado) {
+  // Primeira chamada: calcular solução completa
+  if (trioSolucao.length === 0) {
+    const inicial = estadoParaVetor(estado);
+    const solucao_parcial = Array(TAMANHO).fill(null);
+    const opcoes_validas = Array.from({ length: TAMANHO }, () => {
+      const set = new Set();
+      for (let i = 0; i < TAMANHO; i++) {
+        set.add(i);
+      }
+      return set;
+    });
+
+    const resultado = busca_solucao(0, opcoes_validas, 0, solucao_parcial, inicial);
+    trioSolucao = resultado.solucao;
+    trioPassoAtual = 0;
+  }
+
+  // Executar um passo por chamada (coloca rainha na próxima coluna)
+  const vetorParcial = Array(TAMANHO).fill(null);
+  for (let i = 0; i <= trioPassoAtual && i < TAMANHO; i++) {
+    vetorParcial[i] = trioSolucao[i];
+  }
+
+  trioPassoAtual++;
+  if (trioPassoAtual > TAMANHO) trioPassoAtual = TAMANHO;
+
+  return vetorParaEstado(vetorParcial);
+}
+
 /*========================================================main===========================================================*/
 const inicial = []; //posiciona 8 rainhas aleatóriamente 
 for (let i = 0; i < TAMANHO; i++) {
