@@ -13,46 +13,35 @@ let inicioTempo2 = null;
 
 // estado inicial aleatório
 function criarEstadoInicial() {
-  const estado = Array(8).fill().map(() => Array(8).fill(''));
-  const posicoesDisponiveis = [];
+    const estado = Array(8).fill().map(() => Array(8).fill('')); // matriz 8x8
+    const posicoesDisponiveis = []; // armazena coordenadas
 
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      posicoesDisponiveis.push([i, j]);
+    // gerar todas posições possíveis
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            posicoesDisponiveis.push([i, j]);
+        }
     }
-  }
 
-  const estados = Math.floor(Math.random() * 10000);
-  function shuffle(array, estados) {
-    const random = () => {
-      const x = Math.sin(estados++) * 10000;
-      return x - Math.floor(x);
-    };
+    // embaralhar posições
+    const posicoesEmbaralhadas = posicoesDisponiveis.sort(() => Math.random() - 0.5);
 
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+    // Posicionar 8 rainhas
+    for (let i = 0; i < 8; i++) {
+        const [linha, coluna] = posicoesEmbaralhadas[i];
+        estado[linha][coluna] = 'Q';
     }
-    return array;
-  }
 
-  const posicoesEmbaralhadas = shuffle([...posicoesDisponiveis], estados);
-
-  for (let i = 0; i < 8; i++) {
-    const [linha, coluna] = posicoesEmbaralhadas[i];
-    estado[linha][coluna] = 'Q';
-  }
-
-  return estado;
+    return estado;
 }
 
 function criarTabuleiro(id) {
   const tabuleiro = document.getElementById(id);
-  tabuleiro.innerHTML = '';
+  tabuleiro.innerHTML = ''; // limpa limpa
 
   for (let linha = 0; linha < 8; linha++) {
     for (let coluna = 0; coluna < 8; coluna++) {
-      const casa = document.createElement("div");
+      const casa = document.createElement("div"); // cada div uma casa
       casa.classList.add("casa");
       const escura = (linha + coluna) % 2 !== 0;
       casa.classList.add(escura ? "escura" : "clara");
@@ -67,9 +56,9 @@ function atualizarTabuleiro(id, estado) {
   const tabuleiro = document.getElementById(id);
   const casas = tabuleiro.querySelectorAll(".casa");
 
-  casas.forEach(casa => {
+  casas.forEach(casa => { // percorre array
     casa.innerHTML = "";
-    const linha = parseInt(casa.dataset.linha);
+    const linha = parseInt(casa.dataset.linha); // converte string em inteiro
     const coluna = parseInt(casa.dataset.coluna);
     const valor = estado[linha][coluna];
 
@@ -163,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
   reiniciarBtn.className = 'controle-btn';
   reiniciarBtn.textContent = 'Reiniciar Jogo';
 
-  controles.appendChild(controleBtn);
-  controles.appendChild(reiniciarBtn);
+  controles.appendChild(controleBtn); //coloca o botao inicia/pausa dentro da caixinha "controles"
+  controles.appendChild(reiniciarBtn); //adiciona o botao de reiniciar na caixinha "controles"
 
   const container = document.getElementById('pai-tabuleiros');
   container.parentNode.insertBefore(controles, container.nextSibling);
