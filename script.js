@@ -108,6 +108,16 @@ function iniciarPausarExecucao() {
         botao.classList.add('executando');
 
         intervaloExecucao = setInterval(() => {
+            estadoInicial = criarEstadoInicial();
+
+            estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
+
+            const vec = new Module.Vector();
+            for(let i = 0; i < 8; ++i){
+                vec.push_back(estadoInicial[i]);
+            }
+            estadoAtual2 = vec;
+
             const inicioTempo1 = performance.now();
 
             if (!tabuleiro1Resolvido) {
@@ -128,6 +138,7 @@ function iniciarPausarExecucao() {
                 atualizarTabuleiro("tabuleiro1", estadoAtual1); // Redesenha o tabuleiro
             }
 
+            //tabuleiro 2
             const inicioTempo2 = performance.now();
             const resultado = Module.hill_climbing(estadoAtual2);
             const tempoDecorrido = (performance.now() - inicioTempo2) / 1000;
@@ -137,23 +148,8 @@ function iniciarPausarExecucao() {
                 vals.push(resultado.queens.get(i));
             }
 
-            console.log(`🎉 Solução encontrada para o Tabuleiro 2 em ${resultado.iters} iterações!`);
-            console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(6)} segundos.`);
-
             atualizarInfo("info2", resultado.iters, tempoDecorrido.toFixed(6));
             atualizarTabuleiro("tabuleiro2", vals); 
-
-            /*if (verificarSolucao(vals)) {
-                tabuleiro2Resolvido = true;
-                const tempoDecorrido = (performance.now() - inicioTempo2) / 1000;
-                atualizarInfo("info2", iteracoes2, tempoDecorrido.toFixed(2));
-                console.log(`🎉 Solução encontrada para o Tabuleiro 2 em ${iteracoes2} iterações!`);
-                console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(3)} segundos.`);
-            } else { 
-                iteracoes2++;
-                atualizarInfo("info2", iteracoes2, ((performance.now() - inicioTempo2) / 1000).toFixed(2));
-            }*/
-
 
             // Se ambos os tabuleiros encontraram uma solução, pausa a simulação automaticamente
             if (tabuleiro1Resolvido && tabuleiro2Resolvido) {
@@ -184,7 +180,6 @@ function reiniciarJogo() {
         iniciarPausarExecucao();
     }
 
-    // Regera um novo estado inicial aleatório para a simulação
     estadoInicial = criarEstadoInicial();
 
     estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
@@ -237,22 +232,8 @@ function startBoard(){
     controleBtn.addEventListener('click', iniciarPausarExecucao);
     reiniciarBtn.addEventListener('click', reiniciarJogo);
 
-    // Regera um novo estado inicial aleatório para a simulação
-    estadoInicial = criarEstadoInicial();
-
-    estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
-
-    const vec = new Module.Vector();
-    for(let i = 0; i < 8; ++i){
-        vec.push_back(estadoInicial[i]);
-    }
-    estadoAtual2 = vec;
-
     criarTabuleiro("tabuleiro1");
     criarTabuleiro("tabuleiro2");
-
-    atualizarTabuleiro("tabuleiro1", estadoInicial);
-    atualizarTabuleiro("tabuleiro2", estadoInicial);
 
     const infoContainer1 = document.createElement('div');
     infoContainer1.id = 'info1';
