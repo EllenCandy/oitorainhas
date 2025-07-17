@@ -4,37 +4,21 @@
 // Função para contar conflitos (quantas rainhas se atacam)
 function contarConflitos(estado) {
     let conflitos = 0;
-    const rainhas = [];
-
-    // Encontrar todas as posições das rainhas
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            if (estado[r][c] === 'Q') {
-                rainhas.push([r, c]);
-            }
-        }
-    }
 
     // Para cada rainha, verificar conflitos com as rainhas seguintes
-    for (let i = 0; i < rainhas.length; i++) {
-        for (let j = i + 1; j < rainhas.length; j++) {
-            const [r1, c1] = rainhas[i];
-            const [r2, c2] = rainhas[j];
+    for (let i = 0; i < 8; i++) {
+        for (let j = i + 1; j < 8; j++) {
+            if (estado[i] === estado[j]) {
+                conflitos++;
+            }
 
-            // Conflito na mesma linha
-            if (r1 === r2) {
-                conflitos++;
-            }
-            // Conflito na mesma coluna
-            if (c1 === c2) {
-                conflitos++;
-            }
             // Conflito na mesma diagonal (abs(r1-r2) == abs(c1-c2))
-            if (Math.abs(r1 - r2) === Math.abs(c1 - c2)) {
+            if (Math.abs(estado[i] - estado[j]) === Math.abs(i - j)) {
                 conflitos++;
             }
         }
     }
+
     return conflitos;
 }
 

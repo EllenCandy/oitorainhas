@@ -15,31 +15,19 @@ let inicioTempo2 = null;
 let tabuleiro1Resolvido = false;
 let tabuleiro2Resolvido = false;
 
-// estado inicial aleatório
 function criarEstadoInicial() {
-    const estado = Array(8).fill().map(() => Array(8).fill('')); // matriz 8x8
-    const posicoesDisponiveis = []; // armazena coordenadas
+    const random = (lim) => {
+        return Math.floor(Math.random() * lim);
+    };
 
-    // gerar todas posições possíveis
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            posicoesDisponiveis.push([i, j]);
-        }
+    let initial_state = [];
+
+    for(let i = 0; i < 8; ++i){
+        initial_state.push(random(7));
     }
 
-    // embaralhar posições de forma mais simples
-    const posicoesEmbaralhadas = posicoesDisponiveis.sort(() => Math.random() - 0.5);
-
-    // Posicionar 8 rainhas
-    for (let i = 0; i < 8; i++) {
-        const [linha, coluna] = posicoesEmbaralhadas[i];
-        estado[linha][coluna] = 'Q';
-    }
-
-    return estado;
+    return initial_state;
 }
-
-// --- Funções de Renderização e Controle de UI ---
 
 function criarTabuleiro(id) {
     const tabuleiro = document.getElementById(id);
@@ -47,7 +35,7 @@ function criarTabuleiro(id) {
 
     for (let linha = 0; linha < 8; linha++) {
         for (let coluna = 0; coluna < 8; coluna++) {
-            const casa = document.createElement("div"); // cada div uma casa
+            const casa = document.createElement("div");
             casa.classList.add("casa");
             const escura = (linha + coluna) % 2 !== 0;
             casa.classList.add(escura ? "escura" : "clara");
@@ -58,22 +46,46 @@ function criarTabuleiro(id) {
     }
 }
 
+function transpose(matrix) {
+  return matrix[0].map((_, i) => matrix.map(row => row[i]));
+}
+
 function atualizarTabuleiro(id, estado) {
     const tabuleiro = document.getElementById(id);
-    const casas = tabuleiro.querySelectorAll(".casa");
 
-    casas.forEach(casa => { // percorre array
-        casa.innerHTML = "";
-        const linha = parseInt(casa.dataset.linha); // converte string em inteiro
-        const coluna = parseInt(casa.dataset.coluna);
-        const valor = estado[linha][coluna];
+    tabuleiro.innerHTML = ''; // limpa limpa
 
-        if (valor === "Q") {
-            const rainha = document.createElement("div");
-            rainha.classList.add("rainha");
-            casa.appendChild(rainha);
+    let matriz = [];
+
+    for(let i = 0; i< 8; ++i){
+        matriz.push([0,0,0,0,0,0,0]);
+    }
+
+    for(let linha = 0; linha < 8; ++linha){
+        const coluna_rainha = estado[linha];
+
+        for(let coluna = 0; coluna < 8; ++coluna){
+            matriz[linha][coluna] = coluna_rainha == coluna ? 1 : 0;
         }
-    });
+    }
+
+    matriz = transpose(matriz);
+
+    for (let linha = 0; linha < 8; linha++) {
+        for(let coluna = 0; coluna < 8; ++coluna){
+            const casa = document.createElement("div");
+            const escura = (linha + coluna) % 2 !== 0;
+            casa.classList.add(escura ? "escura" : "clara");
+
+            if(matriz[linha][coluna] == 1){
+                casa.classList.add("rainha");
+            } else{
+                casa.classList.add("casa");
+            }
+
+            tabuleiro.appendChild(casa);
+        }
+    }
 }
 
 // Função para atualizar as informações de iterações e tempo na interface
@@ -95,19 +107,12 @@ function iniciarPausarExecucao() {
         botao.textContent = 'Pausar';
         botao.classList.add('executando');
 
-        // Marca o tempo inicial se ainda não marcado E se o tabuleiro não foi resolvido ainda
-        if (inicioTempo1 === null && !tabuleiro1Resolvido) inicioTempo1 = performance.now();
-        if (inicioTempo2 === null && !tabuleiro2Resolvido) inicioTempo2 = performance.now();
-
-        // Configura o loop de execução da simulação
         intervaloExecucao = setInterval(() => {
-            // Lógica para o Tabuleiro 1 (Método Trio)
-            // Só executa se o tabuleiro ainda não estiver resolvido
+            const inicioTempo1 = performance.now();
+
             if (!tabuleiro1Resolvido) {
-                // Chama o método `proximoEstadoTrio` (definido em proximoEstadoTrio.js)
                 const novoEstado1 = proximoEstadoTrio(estadoAtual1); 
                 
-                // Verifica se o NOVO estado é uma solução
                 if (verificarSolucao(novoEstado1)) {
                     tabuleiro1Resolvido = true; // Marca como resolvido
                     const tempoDecorrido = (performance.now() - inicioTempo1) / 1000;
@@ -123,24 +128,31 @@ function iniciarPausarExecucao() {
                 atualizarTabuleiro("tabuleiro1", estadoAtual1); // Redesenha o tabuleiro
             }
 
-            // Lógica para o Tabuleiro 2 (Método Dupla) - similar ao Tabuleiro 1
-            if (!tabuleiro2Resolvido) {
-                // Chama o método `proximoEstadoDupla` (definido em proximoEstadoDupla.js)
-                const novoEstado2 = proximoEstadoDupla(estadoAtual2);
+            const inicioTempo2 = performance.now();
+            const resultado = Module.hill_climbing(estadoAtual2);
+            const tempoDecorrido = (performance.now() - inicioTempo2) / 1000;
+            let vals = [];
 
-                if (verificarSolucao(novoEstado2)) {
-                    tabuleiro2Resolvido = true;
-                    const tempoDecorrido = (performance.now() - inicioTempo2) / 1000;
-                    atualizarInfo("info2", iteracoes2, tempoDecorrido.toFixed(2));
-                    console.log(`🎉 Solução encontrada para o Tabuleiro 2 em ${iteracoes2} iterações!`);
-                    console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(3)} segundos.`);
-                } else { 
-                    iteracoes2++;
-                    atualizarInfo("info2", iteracoes2, ((performance.now() - inicioTempo2) / 1000).toFixed(2));
-                }
-                estadoAtual2 = novoEstado2;
-                atualizarTabuleiro("tabuleiro2", estadoAtual2);
+            for(let i = 0; i < 8; ++i){
+                vals.push(resultado.queens.get(i));
             }
+
+            console.log(`🎉 Solução encontrada para o Tabuleiro 2 em ${resultado.iters} iterações!`);
+            console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(6)} segundos.`);
+
+            atualizarInfo("info2", resultado.iters, tempoDecorrido.toFixed(6));
+
+            /*if (verificarSolucao(vals)) {
+                tabuleiro2Resolvido = true;
+                const tempoDecorrido = (performance.now() - inicioTempo2) / 1000;
+                atualizarInfo("info2", iteracoes2, tempoDecorrido.toFixed(2));
+                console.log(`🎉 Solução encontrada para o Tabuleiro 2 em ${iteracoes2} iterações!`);
+                console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(3)} segundos.`);
+            } else { 
+                iteracoes2++;
+                atualizarInfo("info2", iteracoes2, ((performance.now() - inicioTempo2) / 1000).toFixed(2));
+            }*/
+
 
             // Se ambos os tabuleiros encontraram uma solução, pausa a simulação automaticamente
             if (tabuleiro1Resolvido && tabuleiro2Resolvido) {
@@ -173,9 +185,14 @@ function reiniciarJogo() {
 
     // Regera um novo estado inicial aleatório para a simulação
     estadoInicial = criarEstadoInicial();
-    // Cria cópias independentes do estado inicial para ambos os tabuleiros
+
     estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
-    estadoAtual2 = JSON.parse(JSON.stringify(estadoInicial));
+
+    const vec = new Module.Vector();
+    for(let i = 0; i < 8; ++i){
+        vec.push_back(estadoInicial[i]);
+    }
+    estadoAtual2 = vec;
 
     // Reseta todos os contadores e flags de resolução
     iteracoes1 = 0;
@@ -186,8 +203,8 @@ function reiniciarJogo() {
     tabuleiro2Resolvido = false;
 
     // Atualiza a visualização dos tabuleiros com o novo estado inicial
-    atualizarTabuleiro("tabuleiro1", estadoAtual1);
-    atualizarTabuleiro("tabuleiro2", estadoAtual2);
+    atualizarTabuleiro("tabuleiro1", estadoInicial);
+    atualizarTabuleiro("tabuleiro2", estadoInicial);
     // Reinicia as informações exibidas para 0 iterações e tempo "0.00"
     atualizarInfo("info1", 0, '0.00'); 
     atualizarInfo("info2", 0, '0.00'); 
@@ -196,64 +213,67 @@ function reiniciarJogo() {
     console.log("Jogo reiniciado! Novos estados iniciais gerados.");
 }
 
-// Bloco de código que executa quando o DOM (estrutura HTML) estiver completamente carregado
-document.addEventListener('DOMContentLoaded', () => {
-    // Cria o container HTML para os botões de controle
+function startBoard(){
     const controles = document.createElement('div');
     controles.id = 'controles';
 
-    // Cria o botão "Iniciar Simulação" / "Pausar"
     const controleBtn = document.createElement('button');
     controleBtn.id = 'controle-btn';
     controleBtn.className = 'controle-btn';
     controleBtn.textContent = 'Iniciar Simulação';
 
-    // Cria o botão "Reiniciar Jogo"
     const reiniciarBtn = document.createElement('button');
     reiniciarBtn.id = 'reiniciar-btn';
     reiniciarBtn.className = 'controle-btn';
     reiniciarBtn.textContent = 'Reiniciar Jogo';
 
-    // Adiciona os botões ao container de controles
     controles.appendChild(controleBtn);
     controles.appendChild(reiniciarBtn);
 
-    // Encontra o elemento no HTML com o ID 'pai-tabuleiros'
     const container = document.getElementById('pai-tabuleiros');
-    // Insere o container de controles logo após o container dos tabuleiros no HTML
     container.parentNode.insertBefore(controles, container.nextSibling);
 
-    // Adiciona "escutadores" de eventos de clique aos botões, associando-os às suas funções
     controleBtn.addEventListener('click', iniciarPausarExecucao);
     reiniciarBtn.addEventListener('click', reiniciarJogo);
 
-    // Configuração inicial do jogo quando a página carrega
-    estadoInicial = criarEstadoInicial(); // Gera o primeiro estado aleatório das rainhas
-    estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial)); // Copia para o Tabuleiro 1
-    estadoAtual2 = JSON.parse(JSON.stringify(estadoInicial)); // Copia para o Tabuleiro 2
+    // Regera um novo estado inicial aleatório para a simulação
+    estadoInicial = criarEstadoInicial();
 
-    // Cria a representação visual dos tabuleiros no HTML
+    estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
+
+    const vec = new Module.Vector();
+    for(let i = 0; i < 8; ++i){
+        vec.push_back(estadoInicial[i]);
+    }
+    estadoAtual2 = vec;
+
     criarTabuleiro("tabuleiro1");
     criarTabuleiro("tabuleiro2");
-    // Atualiza os tabuleiros para mostrar as rainhas nas suas posições iniciais
-    atualizarTabuleiro("tabuleiro1", estadoAtual1);
-    atualizarTabuleiro("tabuleiro2", estadoAtual2);
 
-    // Cria os elementos DIV para exibir as informações de iterações e tempo
-    // Garanta que você tenha estilos CSS para '.info-tabuleiro' e '.rainha'
+    atualizarTabuleiro("tabuleiro1", estadoInicial);
+    atualizarTabuleiro("tabuleiro2", estadoInicial);
+
     const infoContainer1 = document.createElement('div');
     infoContainer1.id = 'info1';
     infoContainer1.className = 'info-tabuleiro';
-    // Insere o container de informações após os botões de controle
+
     controles.parentNode.insertBefore(infoContainer1, controles.nextSibling);
 
     const infoContainer2 = document.createElement('div');
     infoContainer2.id = 'info2';
     infoContainer2.className = 'info-tabuleiro';
-    // Insere o segundo container de informações após o primeiro
     controles.parentNode.insertBefore(infoContainer2, infoContainer1.nextSibling);
 
-    // Atualiza as informações iniciais na tela (0 iterações, tempo '0.00')
     atualizarInfo("info1", 0, '0.00'); 
     atualizarInfo("info2", 0, '0.00'); 
-});
+}
+
+function wasmWaiter(){
+    if(!window.wasmIniciado){
+        window.setTimeout(wasmWaiter, 100);
+    } else{
+        startBoard();        
+    }
+}
+
+document.addEventListener('DOMContentLoaded', wasmWaiter);

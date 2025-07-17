@@ -20,6 +20,15 @@
   </div>
 </div>
 
+  <script>
+        var Module = {
+            onRuntimeInitialized: function() {
+                window.wasmIniciado = true;
+            }
+        };
+        console.log("Module object created.");
+    </script>
+  <script src="hillclimbing.js"></script>
 
   <script src="script.js"></script>
   <script src="trioGPT.js"></script>
