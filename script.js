@@ -141,6 +141,7 @@ function iniciarPausarExecucao() {
             console.log(`⏱️ Tabuleiro 2 (Dupla) resolveu em ${tempoDecorrido.toFixed(6)} segundos.`);
 
             atualizarInfo("info2", resultado.iters, tempoDecorrido.toFixed(6));
+            atualizarTabuleiro("tabuleiro2", vals); 
 
             /*if (verificarSolucao(vals)) {
                 tabuleiro2Resolvido = true;
