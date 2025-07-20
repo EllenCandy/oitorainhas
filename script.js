@@ -102,7 +102,6 @@ function atualizarInfo(idInfo, iteracoes, tempoExibido) {
 function iniciarExecucao() {
     const botao = document.getElementById('controle-btn');
     botao.disabled = true; // Impede múltiplos cliques
-    botao.textContent = 'Executando...';
 
     estadoInicial = criarEstadoInicial();
     estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
@@ -113,93 +112,34 @@ function iniciarExecucao() {
     }
     estadoAtual2 = vec;
 
-    // Reseta contadores
-    iteracoes1 = 0;
-    iteracoes2 = 0;
-    tabuleiro1Resolvido = false;
-    tabuleiro2Resolvido = false;
-
     atualizarTabuleiro("tabuleiro1", estadoInicial);
     atualizarTabuleiro("tabuleiro2", estadoInicial);
     atualizarInfo("info1", 0, '0.00');
     atualizarInfo("info2", 0, '0.00');
 
-    const loop = setInterval(() => {
-        const inicioTempo1 = performance.now();
+    const inicioTempo1 = performance.now();
+    //rodar alg 1
 
-        if (!tabuleiro1Resolvido) {
-            const novoEstado1 = proximoEstadoTrio(estadoAtual1);
-            if (verificarSolucao(novoEstado1)) {
-                tabuleiro1Resolvido = true;
-                const tempo1 = (performance.now() - inicioTempo1) / 1000;
-                atualizarInfo("info1", iteracoes1, tempo1.toFixed(2));
-                console.log(`✅ Tabuleiro 1 resolvido em ${iteracoes1} iterações`);
-            } else {
-                iteracoes1++;
-                atualizarInfo("info1", iteracoes1, ((performance.now() - inicioTempo1) / 1000).toFixed(2));
-            }
-            estadoAtual1 = novoEstado1;
-            atualizarTabuleiro("tabuleiro1", estadoAtual1);
-        }
+    const tempo1 = (performance.now() - inicioTempo1) / 1000;
+    atualizarTabuleiro("tabuleiro1", estadoAtual1);
+    atualizarInfo("info1", 0, tempo1.toFixed(6));
 
-        const inicioTempo2 = performance.now();
-        const resultado = Module.hill_climbing(estadoAtual2);
-        const tempo2 = (performance.now() - inicioTempo2) / 1000;
-        let vals = [];
-        for (let i = 0; i < 8; ++i) {
-            vals.push(resultado.queens.get(i));
-        }
-        atualizarTabuleiro("tabuleiro2", vals);
-        atualizarInfo("info2", resultado.iters, tempo2.toFixed(2));
+    const inicioTempo2 = performance.now();
+    console.time('hill_climbing');
+    const resultado = Module.hill_climbing(estadoAtual2);
+    console.timeEnd('hill_climbing');
+    const tempo2 = (performance.now() - inicioTempo2) / 1000;
 
-        if (!tabuleiro2Resolvido && resultado.iters < 200) {
-            tabuleiro2Resolvido = true;
-        }
-
-        // Quando ambos resolvem, encerra
-        if (tabuleiro1Resolvido && tabuleiro2Resolvido) {
-            clearInterval(loop);
-            botao.textContent = 'Concluído!';
-            console.log("🏁 Execução finalizada.");
-        }
-
-    }, 500); // meio segundo entre cada passo
-}
-
-// Reinicia o jogo para um novo estado inicial
-function reiniciarJogo() {
-    // Pausa a execução se estiver rodando antes de reiniciar
-    if (executando) {
-        iniciarPausarExecucao();
+    let vals = [];
+    for (let i = 0; i < 8; ++i) {
+        vals.push(resultado.queens.get(i));
     }
 
-    estadoInicial = criarEstadoInicial();
+    atualizarTabuleiro("tabuleiro2", vals);
+    atualizarInfo("info2", resultado.iters, tempo2.toFixed(6));
 
-    estadoAtual1 = JSON.parse(JSON.stringify(estadoInicial));
-
-    const vec = new Module.Vector();
-    for(let i = 0; i < 8; ++i){
-        vec.push_back(estadoInicial[i]);
-    }
-    estadoAtual2 = vec;
-
-    // Reseta todos os contadores e flags de resolução
-    iteracoes1 = 0;
-    iteracoes2 = 0;
-    inicioTempo1 = null; // Reseta o tempo de início
-    inicioTempo2 = null;
-    tabuleiro1Resolvido = false; // Permite que a simulação comece novamente para ambos
-    tabuleiro2Resolvido = false;
-
-    // Atualiza a visualização dos tabuleiros com o novo estado inicial
-    atualizarTabuleiro("tabuleiro1", estadoInicial);
-    atualizarTabuleiro("tabuleiro2", estadoInicial);
-    // Reinicia as informações exibidas para 0 iterações e tempo "0.00"
-    atualizarInfo("info1", 0, '0.00'); 
-    atualizarInfo("info2", 0, '0.00'); 
-
-    console.clear(); // Limpa o console do navegador para uma nova rodada de logs
-    console.log("Jogo reiniciado! Novos estados iniciais gerados.");
+    botao.disabled = false;
+    console.log("🏁 Execução finalizada.");
 }
 
 function startBoard() {
@@ -209,7 +149,7 @@ function startBoard() {
     const controleBtn = document.createElement('button');
     controleBtn.id = 'controle-btn';
     controleBtn.className = 'controle-btn';
-    controleBtn.textContent = 'Iniciar Simulação';
+    controleBtn.textContent = 'Executar';
 
     controles.appendChild(controleBtn);
 
@@ -243,5 +183,4 @@ function wasmWaiter(){
     }
 }
 
-document.addEventListener('DOMContentLoaded', startBoard
-);
+document.addEventListener('DOMContentLoaded', startBoard);
