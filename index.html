@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>O problema das 8 rainhas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="pai-tabuleiros">
+  <div>
+    
+    <div class="tabuleiro" id="tabuleiro1"></div>
+    <div id="info1" class="info"></div>
+  </div>
+
+  <div>
+
+    <div class="tabuleiro" id="tabuleiro2"></div>
+    <div id="info2" class="info"></div>
+  </div>
+</div>
+
+  <script>
+        var Module = {
+            onRuntimeInitialized: function() {
+                window.wasmIniciado = true;
+            }
+        };
+        console.log("Module object created.");
+    </script>
+  <script src="hillclimbing.js"></script>
+
+  <script src="script.js"></script>
+  <script src="trioGPT.js"></script>
+  <script src="duplaGPT.js"></script>
+  <script src="metodos.js"></script>
+</body>
+</html>
