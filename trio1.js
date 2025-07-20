@@ -110,35 +110,20 @@ function proximoEstadoTrio(estado) {
   return vetorParaEstado(vetorParcial);
 }
 
-/*========================================================main===========================================================*/
-const inicial = []; //posiciona 8 rainhas aleatóriamente 
-for (let i = 0; i < TAMANHO; i++) {
-    inicial.push(Math.floor(Math.random() * TAMANHO));
+function backtracking(estado_inicial){
+  const solucao_parcial = Array(TAMANHO).fill(null);
+
+  const opcoes_validass = Array.from({ length: TAMANHO }, () => {
+      const newSet = new Set();
+      for (let i = 0; i < TAMANHO; i++) {
+          newSet.add(i);
+      }
+      return newSet;
+  });
+
+  return busca_solucao(0, opcoes_validass, 0, solucao_parcial, estado_inicial);
 }
-
-console.log(`Estado inicial: ${inicial.join(" ")}`);
-
-
-const solucao_parcial = Array(TAMANHO).fill(null);
-
-const opcoes_validass = Array.from({ length: TAMANHO }, () => {
-    const newSet = new Set();
-    for (let i = 0; i < TAMANHO; i++) {
-        newSet.add(i);
-    }
-    return newSet;
-});
 
 //buca_solucao(coluna que está sendo modificada, linhas validas na coluna, iterações, solução momentanea, posicionamento das rainhas)
-console.time("Velocidade");
-const resultado = busca_solucao(0, opcoes_validass, 0, solucao_parcial, inicial);
-console.timeEnd("Velocidade");
-
-const solucao = resultado.solucao;
-const movs = resultado.movs;
-
-if (solucao.length > 0) {
-    console.log(`Solução em ${movs} movimentos: ${solucao.join(" ")}`);
-} else {
-    console.log(`Não encontrou solução em ${movs} movimentos.`);
-}
+/*const solucao = resultado.solucao;
+const movs = resultado.movs;*/

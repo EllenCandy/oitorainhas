@@ -117,26 +117,28 @@ function iniciarExecucao() {
     atualizarInfo("info1", 0, '0.00');
     atualizarInfo("info2", 0, '0.00');
 
-    const inicioTempo1 = performance.now();
-    //rodar alg 1
+    const start1 = performance.now();
+    console.time('backtracking');
+    const resultado1 = backtracking(estadoAtual1)
+    console.timeEnd('backtracking');
+    const end1 = performance.now();
 
-    const tempo1 = (performance.now() - inicioTempo1) / 1000;
-    atualizarTabuleiro("tabuleiro1", estadoAtual1);
-    atualizarInfo("info1", 0, tempo1.toFixed(6));
+    atualizarTabuleiro("tabuleiro1", resultado1.solucao);
+    atualizarInfo("info1", resultado1.movs, ((end1 - start1) / 1000).toFixed(6));
 
-    const inicioTempo2 = performance.now();
+    const start2 = performance.now();
     console.time('hill_climbing');
-    const resultado = Module.hill_climbing(estadoAtual2);
+    const resultado2 = Module.hill_climbing(estadoAtual2)
     console.timeEnd('hill_climbing');
-    const tempo2 = (performance.now() - inicioTempo2) / 1000;
+    const end2 = performance.now();
 
     let vals = [];
     for (let i = 0; i < 8; ++i) {
-        vals.push(resultado.queens.get(i));
+        vals.push(resultado2.queens.get(i));
     }
 
     atualizarTabuleiro("tabuleiro2", vals);
-    atualizarInfo("info2", resultado.iters, tempo2.toFixed(6));
+    atualizarInfo("info2", resultado2.iters, ((end2 - start2) / 1000).toFixed(6));
 
     botao.disabled = false;
     console.log("🏁 Execução finalizada.");
