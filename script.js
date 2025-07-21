@@ -5,11 +5,12 @@ let estadoAtual2 = null;
 let executando = false;
 let intervaloExecucao = null;
 
-// contadores de iteração e tempo
-let iteracoes1 = 0;
-let iteracoes2 = 0;
-let inicioTempo1 = null;
-let inicioTempo2 = null;
+let giter = 0;
+
+let sumt1 = 0;
+let sumt2 = 0;
+let summ1 = 0;
+let summ2 = 0;
 
 // Flags para controlar se um tabuleiro já encontrou a solução
 let tabuleiro1Resolvido = false;
@@ -94,12 +95,14 @@ function atualizarInfo(idInfo, iteracoes, tempoExibido) {
     const info = document.getElementById(idInfo);
     info.innerHTML = `
         <p><strong>Iterações:</strong> ${iteracoes}</p>
-        <p><strong>Tempo:</strong> ${tempoExibido} s</p>
+        <p><strong>Tempo:</strong> ${tempoExibido} ms</p>
     `;
 }
 
 // Inicia/pausa a execução da simulação
 function iniciarExecucao() {
+    ++giter;
+
     const botao = document.getElementById('controle-btn');
     botao.disabled = true; // Impede múltiplos cliques
 
@@ -123,8 +126,14 @@ function iniciarExecucao() {
     console.timeEnd('backtracking');
     const end1 = performance.now();
 
+    console.log('backtracking_iters: ' + resultado1.movs)
+
+    const val1 = end1 - start1;
+    sumt1 += val1;
+    summ1 += resultado1.movs;
+
     atualizarTabuleiro("tabuleiro1", resultado1.solucao);
-    atualizarInfo("info1", resultado1.movs, ((end1 - start1) / 1000).toFixed(6));
+    atualizarInfo("info1", resultado1.movs, val1.toFixed(6));
 
     const start2 = performance.now();
     console.time('hill_climbing');
@@ -132,27 +141,51 @@ function iniciarExecucao() {
     console.timeEnd('hill_climbing');
     const end2 = performance.now();
 
+    console.log('hill_climbing_iters: ' + resultado2.iters)
+
+    const val2 = end2 - start2;
+    sumt2 += val2;
+    summ2 += resultado2.iters;
+
     let vals = [];
     for (let i = 0; i < 8; ++i) {
         vals.push(resultado2.queens.get(i));
     }
 
     atualizarTabuleiro("tabuleiro2", vals);
-    atualizarInfo("info2", resultado2.iters, ((end2 - start2) / 1000).toFixed(6));
+    atualizarInfo("info2", resultado2.iters, val2.toFixed(6));
 
     botao.disabled = false;
     console.log("🏁 Execução finalizada.");
+
+    const mediaContainer = document.createElement('div');
+    mediaContainer.id = 'media';
+    mediaContainer.className = 'info-tabuleiro media-tabuleiro';
+
+    const part1 = document.createTextNode(`Calc Alg A: ${sumt1 + 0.005 * summ1}`);
+    const part2 = document.createTextNode(`Calc Alg B: ${sumt2 + 0.005 * summ2}`);
+
+    mediaContainer.appendChild(part1);
+    mediaContainer.appendChild(document.createElement('br'));
+    mediaContainer.appendChild(part2);
+
+    const orig = document.getElementById('media');
+    if(orig){
+        document.getElementById('controles').removeChild(orig);
+    }
+
+    document.getElementById('controles').prepend(mediaContainer);
 }
 
 function startBoard() {
     const controles = document.createElement('div');
     controles.id = 'controles';
-
+    
     const controleBtn = document.createElement('button');
     controleBtn.id = 'controle-btn';
     controleBtn.className = 'controle-btn';
     controleBtn.textContent = 'Executar';
-
+    
     controles.appendChild(controleBtn);
 
     const container = document.getElementById('pai-tabuleiros');
